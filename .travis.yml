@@ -28,7 +28,8 @@ before_install:
 - gem install limarka
 script:
 - limarka --version
-- limarka exec
+- ruby -rjson -ryaml -e "puts JSON.parse(IO.read('configuracao.json')).to_yaml" > configuracao.yaml
+- limarka exec -y
 after_failure:
 - cd /usr/local/texlive && find . -iname latexmk
 - cat /usr/local/texlive/2018/install-tl.log
