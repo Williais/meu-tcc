@@ -1,0 +1,35 @@
+before_deploy:
+- git config --local user.name "José William"
+- git config --local user.email "josew937@gmail.com"
+- export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+- git tag $TRAVIS_TAG
+deploy:
+  provider: releases
+  api_key:
+    secure: KpN5GciY+KJbjcc497RTPhQiAD3zPH/LXm5Ew/7IMckvFEKieMZWb4z9KUCo+KXxnxMdC8w2oK6FLtHDE4L+XY/jLcSPeZfjaynJi85AfJDP2m7A0h8nPPeVf1MZfH2qhUJIa61CQJ+q/cYSjUMAzPInge881LjtbEqax26vpPTzziw+6YXjgqWsPV6QSSEtzqK4QgHeYFCCa0x6Xur8jgdQ+H080WTR50joIBZVcjICADvtQTqJyuf8rUsXSzfbk6ZG5e/aq8rcvux5DDpGeyyeX8Cmg8ZKqi0pcRkJnkFIysHVcZ8ScuJd47Adv+T/IZ6MiLwDJ0VifzBzkTpXb1VNa4XtDD2dp7kejznzxUcrovoMCLzH92fKuUT8dAZLRIa73q4w0NkDhnPfZmnXQOp32ysgWMf3NW5fux/xRddNQODh+xvOEuB3EAWQl+xM75eyqLO/52uQibSQh0NEFkZldnJ8m7uMFO5uEZbHPGCULH0j/3wpM2bzLMCnbqCumCUtVOc39YdpyuAlojp8O/MmTek47C5VnwJi3a+77ySap/flxF6ke3xeXCdhUbfMhvHft250y2+ArSsmQAWNSHKFG5G2EBmF/rdqoJFucmGTBy9GLVighkOEKhmD5Zh/lyGg0YFiuMiFJQoFGj2DeeC5i9s9XnlVv0krGyjXZAw=
+  file: xxx-Monografia-projeto.pdf
+  on:
+    repo: Williais/meu-tcc
+dist: xenial
+sudo: required
+language: ruby
+rvm:
+- 2.3.1
+before_install:
+- sudo apt-get update -qq
+- sudo apt-get install -y -qq ruby-full pdftk poppler-utils language-pack-pt
+- wget https://github.com/jgm/pandoc/releases/download/2.5/pandoc-2.5-1-amd64.deb
+  && sudo dpkg -i pandoc-*.deb
+- wget https://github.com/abntex/limarka/raw/master/spec/dependencias/texlive-abntex2.profile
+- wget http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz && tar -xf
+  install-tl-unx.tar.gz && cd install-tl-* && sudo ./install-tl -no-gui -profile ../texlive-abntex2.profile
+  -no-verify-downloads && cd ..
+- export PATH=$PATH:/usr/local/texlive/2018/bin/x86_64-linux
+- gem install limarka
+script:
+- limarka --version
+- limarka exec
+after_failure:
+- cd /usr/local/texlive && find . -iname latexmk
+- cat /usr/local/texlive/2018/install-tl.log
+- cat *.log
